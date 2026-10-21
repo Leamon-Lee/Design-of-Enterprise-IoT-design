@@ -8,6 +8,7 @@ The current assignment project is the **Smart Turtle Breeding System (STBS)**, a
 
 - `assignments/` — assignment source files and working assets.
 - `assignments/assignment-A1a/` — LaTeX source, figures, and the compiled submission for Assignment 1a.
+- `assignments/assignment-A1b/` — LaTeX source, APA references, Excel-exported tables, figures, and the compiled submission for Assignment 1b.
 - `JIT G24 Design of Enterprise IoT/` — course slides, tutorial handouts, assessment briefs, templates, and personal assessment files.
 
 ## Build Assignment 1a
@@ -20,10 +21,20 @@ latexmk -xelatex main.tex
 
 The compiled report is written to `main.pdf`. Temporary LaTeX build files are excluded from version control.
 
+## Build Assignment 1b
+
+The Assignment 1b report is in `assignments/assignment-A1b`. Its device, network, and edge/cloud tables are exported from `assignments/assA1.xlsx` and embedded as PDFs rather than recreated in LaTeX. From that directory, run:
+
+```powershell
+latexmk -xelatex main.tex
+```
+
+The compiled report is written to `main.pdf`.
+
 ## Project status
 
 - Assignment 1a: Smart Turtle Breeding System use case, solution overview, and value proposition.
-- Further assignment work will be added under `assignments/`.
+- Assignment 1b: IoT device profiles, connectivity, edge/fog/cloud design, architecture diagram, and implementation references.
 
 ## Access
 
