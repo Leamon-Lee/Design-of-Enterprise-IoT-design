@@ -10,6 +10,7 @@
 *.run.xml
 *.synctex.gz
 *.xdv
+*.toc
 build/
 
 # Editor and operating-system files
