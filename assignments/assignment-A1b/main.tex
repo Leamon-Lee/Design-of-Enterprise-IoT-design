@@ -1,42 +1,52 @@
 \documentclass[lang=en,11pt,a4paper,citestyle=apa,bibstyle=apa]{elegantpaper}
 
 \usepackage{csquotes}
+\usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{float}
-\usepackage{pdfpages}
-\usepackage{pdflscape}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{colortbl}
+\usepackage{ragged2e}
+\usepackage{multirow}
 \usepackage{tikz}
 \usepackage{xurl}
 \usetikzlibrary{arrows.meta,fit,positioning}
-\hypersetup{hidelinks}
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
 \urlstyle{same}
 \addbibresource{references.bib}
 \DeclareLanguageMapping{english}{english-apa}
+\newcommand{\deviceLink}[2]{\href{#1}{\textcolor{blue}{#2}}}
 
 \title{Design of Enterprise IoT: Assignment 1b\\[0.4em]
   \large Smart Turtle Breeding System (STBS)}
-\author{Team 01}
+\author{\vspace{1em}\Large Team 01\vspace{1em}}
 \institute{Jinling Institute of Technology}
 \date{\today}
 
 \begin{document}
 
 \maketitle
+
+\vspace{9cm}
 \begin{center}
-\textbf{Team members}\\[0.35em]
-Li Jingru (Leamon), Student ID 2422441049, 25\%\\
-Rong Yicheng (Bacon), Student ID 2422441046, 25\%\\
-Zhang Zhengyan (Paul), Student ID 2422441050, 25\%\\
-Ye Taohao (Leaf), Student ID 2422441048, 25\%
+  \renewcommand{\arraystretch}{1}
+  \begin{tabularx}{0.90\textwidth}{@{}llX@{}}
+    \toprule
+    \textbf{Student ID} &
+    \textbf{Name} &
+    \textbf{Preferred Name} \\
+    \midrule
+    2422441049 & Li Jingru      & Leamon \\
+    2422441046 & Rong Yicheng   & Bacon  \\
+    2422441050 & Zhang Zhengyan & Paul   \\
+    2422441048 & Ye Taohao      & Leaf   \\
+    \bottomrule
+  \end{tabularx}
 \end{center}
 
-\vfill
-\begin{center}
-  \fbox{\begin{minipage}{0.88\textwidth}
-  \textbf{Design scope.} This report develops the A1a proposal into a component-level enterprise IoT design. It specifies commercially available field devices, the local and wide-area network, edge/fog and cloud processing, and end-to-end data flows. The device and connectivity profiles are reproduced from the supplied Excel templates so that the required A1b structure is retained.
-  \end{minipage}}
-\end{center}
-\vfill
 \clearpage
 
 \tableofcontents
@@ -44,109 +54,79 @@ Ye Taohao (Leaf), Student ID 2422441048, 25\%
 
 \section{Task 1: Solution Overview}
 
-The Smart Turtle Breeding System (STBS) serves 20 indoor or semi-closed Chinese soft-shell turtle units. Each unit measures water temperature, pH, turbidity, ammonia, level and flow, while zone equipment monitors feed stock, humidity and video. Four local controllers preserve safe rules when the Internet is unavailable. A managed wired network carries controller telemetry and camera streams to an industrial edge computer, which validates data, detects events, buffers outages and performs video inference. Selected telemetry, alarms and evidence clips are sent securely to a cloud service for long-term records, dashboards and notifications. Operators review unit-specific conditions, feeding and nesting evidence, while technicians receive calibration and equipment-fault information. This design refines A1a by selecting deployable device models and separating deterministic local control, bandwidth-intensive edge analytics and cloud reporting \parencite{Prapti2022,Rastegari2023,Munyaev2026}.
+The Smart Turtle Breeding System (STBS) serves 20 indoor or semi-closed Chinese soft-shell turtle units. The architecture separates a device layer, a fog layer and a cloud layer. ESP32-C6 devices collect temperature, pH, ammonia, turbidity, level and flow data; local relay, PWM and driver outputs control the heater, valve and water-cycling pump. A Zigbee coordinator connects the wireless device links and food feeder to a Raspberry Pi 5 edge gateway. The IP camera uses Ethernet through the LAN switch, while the router provides the Internet gateway. The Raspberry Pi aggregates, filters and buffers local data, shows a local dashboard through HDMI, and uploads selected information to the IoT cloud platform over MQTT/HTTPS with TLS. Web, mobile and optional analytics applications support remote access, alerts and longer-term analysis \parencite{Prapti2022,Rastegari2023,Munyaev2026}.
 
-\textit{Word count: 133.}
 
 \section{Task 2: IoT Devices}
 
 \subsection{Overview and suitability}
 
-The device set favours wired, commercially available instruments because the units are fixed, wet and close to mains power. Industrial 4--20\,mA and RS-485 probes tolerate longer runs and expose diagnostics; local PLCs provide bounded control and manual override. Temperature, pH, turbidity, ammonia, level and flow address high-value aquaculture risks, while a hopper sensor verifies feed availability. PoE cameras support activity and nesting evidence without battery maintenance. The selection links directly to the A1a value proposition: fewer routine rounds, earlier fault detection, more consistent feeding and auditable intervention, without making cloud availability a prerequisite for animal safety.
-
-\textit{Word count: 91.}
+The device set follows the connectivity diagram. ESP32-C6 \#1 handles water-environment sensing, while ESP32-C6 \#2 checks tank functionality and connects level and flow feedback to the water-change controls. GPIO/ADC, UART/I2C and Pulse/GPIO are used inside the device layer; Zigbee provides the short wireless links to the coordinator. The heater, valve and water-cycling pump remain under local relay, PWM or driver control. The IP camera uses Ethernet and the food feeder uses Zigbee. This arrangement keeps immediate control local while the Raspberry Pi 5 gateway aggregates, filters and buffers data before cloud upload.
 
 \subsection{IoT Device Profile}
 
-The following pages are exported from the completed `IoT Device Profile' worksheet in the supplied Excel workbook. The seven-column \emph{Template-2\_IoT-Device-Profile} structure is preserved. Each row identifies a purchasable model, its measurable property, interface and supporting components. The profile covers the field sensors, actuators and supporting devices used by the network and edge design in Tasks 3--5; computing and network gateway platforms are intentionally excluded from this device list.
+The device profile below identifies the selected field sensors, two ESP32-C6 controllers, actuators, Zigbee food feeder and IP camera. Each row gives the measurable or controllable property, interface, supporting components and design justification. The Raspberry Pi, Zigbee coordinator, switch and router are described in Tasks 3--4.
 
-\nocite{AAEONBoxer,ArduinoA0602,ArduinoOpta,AtlasDOKit,AtlasDOTransmitter,AtlasHumidity,AtlasPHKit,AtlasPHProbe,AtlasRTD3,AtlasRTDProbe,AquaelPump,AquaMedicHeater,Burkert6213,BurkertManual,DFRobotAmmonia,DFRobotFlow,DFRobotLevel,DFRobotSelection,DFRobotTurbidity,DFRobotUltrasonic,FIAPFeeder,Reolink811A}
-
-\includepdf[pages=-,fitpaper=true,pagecommand={\thispagestyle{plain}}]{assets/tables/task2-device-profile.pdf}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{1pt}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\setlength{\LTcapwidth}{\textwidth}
+\setlength{\LTpre}{0pt}
+\setlength{\LTpost}{0pt}
+\input{tables/device-profile.tex}
+\endgroup
 
 \section{Task 3: IoT Network Technology}
 
-The completed network-only worksheet is embedded below. The responses justify the field and plant technologies against range, power, data rate, latency, security, reliability and cost. The selected architecture uses industrial current loops, RS-485/Modbus RTU, pulse/UART, isolated 24\,V control, managed Gigabit Ethernet/PoE and Ethernet-primary/LTE-failover WAN. The RS-485 and Ethernet limits are treated as engineering design constraints, not as a reason to put control-critical traffic on Wi-Fi \parencite{ModbusSerial,TPSwitch,TeltonikaRUTX11}.
+The network design follows the connectivity diagram exactly: 1-Wire/GPIO connects temperature, RS-485 Modbus through an isolated RS-485-to-UART converter connects the combined pH/NH\textsubscript{3}-N sensor, GPIO/ADC connects the analog turbidity and pressure-level sensors, and Pulse/GPIO connects the flow sensor. Relay/PWM/driver signals control the heater, normally-closed valve and AC electric water-cycling pump. Zigbee at 2.4\,GHz under IEEE 802.15.4 connects the ESP32-C6 nodes and native Zigbee food feeder to the coordinator; Ethernet connects the Reolink camera and fog/network devices; MQTT/HTTPS over TLS connects the gateway to the cloud \parencite{EspressifESP32C6DevKitC1,DFRobotDFR0845}.
 
-\includepdf[pages=-,fitpaper=true,pagecommand={\thispagestyle{plain}}]{assets/tables/task3-network-connectivity.pdf}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{1pt}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\setlength{\LTcapwidth}{\textwidth}
+\setlength{\LTpre}{0pt}
+\setlength{\LTpost}{0pt}
+\input{tables/network-connectivity.tex}
+\endgroup
 
 \section{Task 4: Fog and Cloud Computing}
 
-The edge/fog and cloud continuation of the supplied connectivity template is embedded below. The Opta controllers execute local interlocks and bounded actuation; the BOXER edge node validates, correlates, buffers and analyses video; and AWS provides durable history, device identity, notifications and reporting. The cloud is therefore valuable for multi-user access and long-term analysis but is not placed in the immediate safety loop \parencite{AAEONBoxer,ArduinoOpta,AWSHowItWorks,AWSProtocols,AWSShadows}.
+The Raspberry Pi 5 is the fog gateway for data aggregation, local control rules, filtering, optional video processing, local buffering and upload to the cloud. The USB Zigbee coordinator bridges the ESP32-C6 and Aqara feeder links to the gateway. The HDMI-connected local monitor is display-only. The router provides the Internet gateway, while the IoT cloud platform supports long-term storage, analytics, notifications, remote access, model training and device management. The cloud is therefore useful for applications and historical analysis but is not placed in the immediate actuator control loop \parencite{RaspberryPi5,SONOFFZBDongleE}.
 
-\includepdf[pages=-,fitpaper=true,pagecommand={\thispagestyle{plain}}]{assets/tables/task4-edge-cloud-connectivity.pdf}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{1pt}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\setlength{\LTcapwidth}{\textwidth}
+\setlength{\LTpre}{0pt}
+\setlength{\LTpost}{0pt}
+\input{tables/edge-cloud-connectivity.tex}
+\endgroup
 
-\begin{landscape}
 \section{Task 5: Overall Solution Connectivity}
 
 \subsection{Graphical representation}
 
 \begin{figure}[H]
 \centering
-\resizebox{0.98\linewidth}{!}{%
-\begin{tikzpicture}[
-  x=1cm,y=1cm,
-  box/.style={draw,rounded corners=2pt,align=center,minimum height=1.35cm,text width=3.5cm,fill=blue!6},
-  device/.style={box,fill=green!10},
-  network/.style={box,fill=orange!13},
-  compute/.style={box,fill=purple!10},
-  user/.style={box,fill=cyan!10},
-  layer/.style={draw,dashed,rounded corners=4pt,inner sep=6pt},
-  flow/.style={-{Latex[length=2.2mm]},thick},
-  biflow/.style={{Latex[length=2.2mm]}-{Latex[length=2.2mm]},thick},
-  lab/.style={font=\scriptsize,align=center,fill=white,inner sep=1.5pt}
-]
-\node[device] (sensors) at (0,5.8) {20 tank sensor sets\\temperature, pH, turbidity,\\NH$_3$-N, level, flow};
-\node[device] (aux) at (0,3.6) {Zone instruments\\feed level and humidity};
-\node[device] (acts) at (0,1.4) {Tank/zone actuators\\heater, pump, NC valves, feeder};
-\node[device] (cams) at (0,-0.8) {20 Reolink PoE cameras\\activity, feeding, nesting};
-\node[compute] (plc) at (5.0,4.2) {4 $\times$ Arduino Opta zones\\five tanks per controller\\local bounded control};
-\node[network] (switch) at (9.8,3.0) {TP-Link managed PoE+ switch\\VLANs, ACLs, QoS};
-\node[compute] (edge) at (14.6,4.2) {AAEON BOXER edge/fog\\validation, buffering, AI,\\local dashboard};
-\node[network] (router) at (14.6,0.4) {Teltonika RUTX11\\firewall/VPN; Ethernet +\\dual-SIM LTE failover};
-\node[compute] (cloud) at (19.8,4.2) {AWS cloud services\\IoT Core, time-series data,\\object storage, rules, audit};
-\node[user] (app) at (24.8,5.4) {Operator/manager app\\dashboard, alarms, evidence,\\bounded set-point requests};
-\node[user] (maint) at (24.8,2.9) {Maintenance records\\tickets, calibration, runtime,\\CSV/API export};
-
-\draw[biflow] (sensors.east) -- node[lab,above] {4--20\,mA; RS-485/Modbus RTU; pulse/UART} (plc.west);
-\draw[flow] (aux.east) -- node[lab,below] {UART/I$^2$C; digital I/O} (plc.west);
-\draw[biflow] (acts.east) -- node[lab,below] {isolated relay/24\,V commands; feedback} (plc.west);
-\draw[biflow] (plc.east) -- node[lab,above] {Cat6 Ethernet; states, alarms,\\set-points and acknowledgements} (switch.west);
-\draw[flow] (cams.east) -- node[lab,below] {PoE Ethernet; H.265/RTSP} (switch.west);
-\draw[biflow] (switch.east) -- node[lab,above] {Gigabit LAN; tagged VLANs} (edge.west);
-\draw[biflow] (edge.south) -- node[lab,right] {MQTT/HTTPS egress} (router.north);
-\draw[flow] (router.east) -| node[lab,near start,below] {Internet VPN/TLS} (cloud.south);
-\draw[biflow] (cloud.east) -- node[lab,above] {HTTPS/WebSocket; reports and authorised requests} (app.west);
-\draw[biflow] (cloud.east) -- node[lab,below] {API/CSV; tickets and completion state} (maint.west);
-\draw[flow,dashed] (edge.north east) to[bend left=18] node[lab,above] {validated telemetry/events via MQTT/TLS; selected clips via HTTPS} (cloud.north west);
-\draw[biflow,dashed] (edge.east) to[bend right=12] node[lab,below] {LAN access during WAN outage} (app.south west);
-
-\node[layer,fit=(sensors)(aux)(acts)(cams),label={[font=\bfseries]above:Device layer}] {};
-\node[layer,fit=(plc),label={[font=\bfseries]above:Local control}] {};
-\node[layer,fit=(switch)(edge)(router),label={[font=\bfseries]above:Plant network and fog}] {};
-\node[layer,fit=(cloud),label={[font=\bfseries]above:Cloud}] {};
-\node[layer,fit=(app)(maint),label={[font=\bfseries]above:Users and systems}] {};
-\node[align=left,font=\scriptsize,anchor=north west] at (-1.8,-2.0) {\textbf{Control principle:} immediate interlocks remain in the Opta PLCs. Cloud-originated changes are authenticated, logged and bounded locally;\\continuous video remains on site, while validated telemetry, alarms and selected evidence travel to the cloud.};
-\end{tikzpicture}
-}
-\caption{End-to-end STBS connectivity, processing locations and data flows.}
+\includegraphics[width=\textwidth,keepaspectratio]{assets/presentation-connectivity-diagram.png}
+\caption{STBS connectivity and control architecture.}
 \label{fig:architecture}
 \end{figure}
-\end{landscape}
 
 \subsection{Description of the diagram}
 
-Figure~\ref{fig:architecture} separates safety control from analytics and reporting. Tank probes and actuator feedback terminate at four Opta PLCs, each responsible for five units. The PLCs execute bounded control locally and exchange states over the control VLAN. Twenty PoE cameras and the PLC uplinks reach a managed switch; the BOXER edge computer consumes separated streams, validates telemetry, runs video inference and buffers outages. The router exposes no field device directly and supplies secure primary-Ethernet/dual-SIM WAN service. The edge publishes validated summaries and events by MQTT/TLS and uploads only selected clips by HTTPS. AWS stores history, routes alarms and serves authenticated dashboards and maintenance exports. Users may acknowledge alarms or propose set-points, but every downward request is logged and revalidated at the edge and PLC. During Internet loss, local control, event storage and the LAN dashboard continue.
-
-\textit{Word count: 128.}
+Figure~\ref{fig:architecture} follows the three-layer structure and connection legend: the device layer senses and actuates, the fog layer aggregates, filters and buffers local data, and the cloud layer stores, analyses and presents authorised results. ESP32-C6 \#1 and \#2 implement the two local device functions, with 1-Wire/GPIO, RS-485/UART, GPIO/ADC and Pulse/GPIO connections to the sensors and relay/PWM/driver outputs to the heater, valve and AC electric pump. The Aqara food feeder is a native Zigbee device; the IP camera uses Ethernet RJ45. The Raspberry Pi 5, USB Zigbee coordinator, switch and router provide the fog/network path, while MQTT/HTTPS over TLS carries selected data to the cloud. Immediate control remains local and does not depend on a cloud round trip.
 
 \section{Task 6: Conclusion}
 
-The design fulfils the A1a plan by linking continuous water and feed measurements, bounded actuation, video evidence and role-specific alerts across 20 units. Industrial wired probes and zone PLCs improve repeatability and keep essential temperature, circulation and water-exchange rules independent of Internet availability. Edge processing contains video bandwidth, correlates commands with level/flow feedback and preserves a local operating view; cloud services add durable history, comparison, notification and maintenance reporting. The main limitations are probe fouling and calibration effort, the capital and installation cost of industrial sensors and protected wiring, and the need to train and validate vision models under changing light, water and turtle density. Ammonia and video inference are indicators rather than diagnoses, while feeder runtime only estimates delivered mass. A staged pilot on two units should validate thresholds, hydraulic timings, false-alarm rates, model performance and operating procedures before all 20 units are commissioned.
+The design links continuous water and feed measurements, bounded actuation, video evidence and role-specific alerts across 20 units. The diagram keeps immediate sensing and actuation in the device layer, uses Zigbee and Ethernet to connect the local system, and assigns aggregation, filtering and buffering to the Raspberry Pi 5 fog gateway. The water-cycling pump is an AC electric actuator, while the food feeder is a native Zigbee device. The cloud adds long-term storage, visualisation, alerts, remote access and optional behaviour or nesting analytics. The main limitations are probe fouling and calibration effort, wireless range within the 10 m diagrammed Zigbee links, dependence on local gateway and switch power, and the need to validate video models under changing light, water and turtle density. Ammonia and video inference are indicators rather than diagnoses, while feeder runtime only estimates delivered mass. A staged pilot should validate thresholds, wireless coverage, hydraulic timings, electrical protection, false-alarm rates, model performance and operating procedures before all 20 units are commissioned.
 
-\textit{Word count: 139.}
-
-\clearpage
 \printbibliography[title={References}]
 
 \end{document}

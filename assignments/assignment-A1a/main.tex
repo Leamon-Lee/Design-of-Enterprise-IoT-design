@@ -3,6 +3,12 @@
 \usepackage{float}
 \hypersetup{hidelinks}
 \usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{colortbl}
+\usepackage{ragged2e}
+\usepackage{xurl}
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
 
 % Title
 \title{Design of Enterprise IoT: Assignment 1a\\[0.4em]
@@ -10,7 +16,7 @@
 	
 
 % Team Members
-\author{Team 01}
+\author{\vspace{0.4em}\Large Team 01\vspace{0.4em}}
 
 \institute{Jinling Institute of Technology}
 \date{\today}
@@ -20,17 +26,16 @@
 \maketitle
 \begin{center}
 	\renewcommand{\arraystretch}{0.8}
-	\begin{tabularx}{0.98\textwidth}{@{}llXX@{}}
+\begin{tabularx}{0.98\textwidth}{@{}llX@{}}
 		\toprule
-		\textbf{Student ID} &
-		\textbf{Name} &
-		\textbf{Preferred Name} &
-		\textbf{Contribution (\%)} \\
-		\midrule
-		2422441049 & Li Jingru      & Leamon & 25\% \\
-		2422441046 & Rong Yicheng   & Bacon  & 25\% \\
-		2422441050 & Zhang Zhengyan & Paul   & 25\% \\
-		2422441048 & Ye Taohao      & Leaf   & 25\% \\
+\textbf{Student ID} &
+\textbf{Name} &
+\textbf{Preferred Name} \\
+\midrule
+2422441049 & Li Jingru      & Leamon \\
+2422441046 & Rong Yicheng   & Bacon  \\
+2422441050 & Zhang Zhengyan & Paul   \\
+2422441048 & Ye Taohao      & Leaf   \\
 		\bottomrule
 	\end{tabularx}
 \end{center}
@@ -39,25 +44,29 @@
 
 A Chinese soft-shell turtle farm operates 20 indoor or semi-closed aquaculture units with an operations and maintenance team. Farm operators manage water quality, feeding, temperature, turtle activity and nesting areas; maintenance technicians service filters and pumps.
 
-Operators manually measure water conditions, prepare feed, inspect behaviour and health, change water, and search for eggs. Periodic rounds can cause inconsistent feeding, delayed detection of deteriorating conditions or equipment failures, and labour-intensive egg collection. Water quality, feeding and temperature affect turtle health and growth~[1]. Reviews identify temperature, dissolved oxygen and pH as priority IoT aquaculture parameters~[2, 3].
+Operators manually measure water conditions, prepare feed, inspect behaviour and health, change water, and search for eggs. These checks are time-consuming, problems may go unnoticed between rounds, and feeding times and amounts may vary. Periodic rounds can therefore cause inconsistent feeding, delayed detection of deteriorating conditions or equipment failures, and labour-intensive egg collection. Water quality, feeding and temperature affect turtle health and growth~[1]. Reviews identify temperature, dissolved oxygen and pH as priority IoT aquaculture parameters~[2, 3].
 
-An IoT solution is proposed to monitor behavioural conditions continuously, control feeding and temperature, and support bounded partial water changes. Distributed sensors, actuators and cameras send alerts and records so one team can respond between rounds; field evidence shows that vision-based nesting detection can reduce egg-harvesting effort~[4].
+An IoT solution is proposed to monitor water quality and turtle behaviour continuously, control feeding and temperature, and support bounded partial water changes. Distributed sensors, actuators and cameras send alerts and records so one team can respond between rounds. The expected benefits are less routine work, earlier warnings and more consistent feeding; field evidence also shows that vision-based nesting detection can reduce egg-harvesting effort~[4].
 
 
 \section{Task 2: Solution Overview}
 
 STBS uses water-temperature, pH, turbidity and ammonia sensors in each unit, with level/flow feedback, feeder sensors and IP cameras covering activity, feeding and nesting zones. Local controllers compare readings with species- and growth-stage set-points, regulate heaters, dispense scheduled portions and perform bounded partial water changes. Device feedback and follow-up measurements verify each action. An edge gateway keeps essential rules operating during internet loss, filters routine data and sends readings, events and selected video to a cloud dashboard. Alerts identify the affected unit, abnormal parameter, action taken and need for intervention. Farm operators configure targets, review alerts and nesting evidence, collect eggs and override automation. Maintenance technicians calibrate sensors, service filters and equipment, diagnose failures and maintain power/network availability. Role-based access, audit logs and local fail-safe limits support reliable operation.
 
-\newpage
 \section{Task 3: Value Proposition}
 
-The value proposition follows the tutorial method. It distinguishes the current substitute from the proposed system, separates benefits from features, describes the user experience, and records adoption needs and implementation fears. Each statement identifies the stakeholder to whom it applies.
+The value proposition distinguishes the current substitute from the proposed system, separates benefits from features, describes the user experience, and records adoption needs and implementation fears. Each statement identifies the stakeholder to whom it applies.
 
-\thispagestyle{plain}
-\begin{center}
-  \includegraphics[width=0.95\linewidth,keepaspectratio]{assets/value_proposition_vector.pdf}
-\end{center}
-\clearpage
+\begingroup
+\small
+\setlength{\tabcolsep}{2pt}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\setlength{\LTcapwidth}{\textwidth}
+\setlength{\LTpre}{0pt}
+\setlength{\LTpost}{0pt}
+\input{tables/value-proposition.tex}
+\endgroup
 
 \section{References}
 

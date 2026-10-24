@@ -1,0 +1,37 @@
+\begin{longtable}{|P{0.15\linewidth}|P{0.17\linewidth}|P{0.22\linewidth}|P{0.43\linewidth}|}
+\caption{STBS fog and cloud connectivity.}\label{tab:a1b-edge-cloud-connectivity}\\
+\hline
+\rowcolor{gray!20}\textbf{IoT devices and network devices (e.g., router, hub, gateway, etc.)} & \textbf{Main considerations} & \textbf{Specific questions} & \textbf{Responses}\\
+\hline
+\endfirsthead
+\hline
+\rowcolor{gray!20}\textbf{IoT devices and network devices (e.g., router, hub, gateway, etc.)} & \textbf{Main considerations} & \textbf{Specific questions} & \textbf{Responses}\\
+\hline
+\endhead
+\hline
+\multicolumn{4}{r}{\footnotesize Continued on next page}\\
+\endfoot
+\hline
+\endlastfoot
+Edge/fog devices: ESP32-C6 \#1/\#2; Aqara C1 feeder; SONOFF ZBDongle-E coordinator; Raspberry Pi 5; monitor; switch; router. & Determine the connectivity between IoT devices and network devices in the edge/fog layer & Is an edge/fog layer required? Why? & Yes. The diagram explicitly places a fog layer between the device layer and the cloud. The Raspberry Pi 5 provides data aggregation, local control rules, data filtering, optional video processing, local buffering and upload to the cloud. This keeps the system useful when the Internet is unavailable and prevents every local signal from depending on a cloud round trip. The SONOFF coordinator bridges the ESP32-C6 and Aqara Zigbee links to the gateway.\\
+\cline{3-4}
+ &  & Which network device(s) should handle computing across the edge/fog layer? & The Raspberry Pi 5 is the edge gateway and performs the fog-layer computing. The SONOFF ZBDongle-E acts as the Zigbee 3.0 USB coordinator, the LAN switch forwards Ethernet traffic, the router provides the Internet gateway, and the HDMI-connected local monitor is display-only.\\
+\cline{3-4}
+ &  & What data is transmitted between the IoT devices and network device(s)? & The ESP32-C6 nodes send temperature, pH, NH3-N, turbidity, water level and flow readings, together with actuator states and food-feeder events. The IP camera sends monitoring video over Ethernet. The Raspberry Pi 5 adds timestamps, device identity, local status and event context before forwarding selected data to the cloud.\\
+\cline{3-4}
+ &  & What data processing and/or analysis tasks should be performed in the edge/fog layer? & The gateway aggregates sensor readings, applies local control rules, filters noisy or unnecessary data, buffers records during Internet loss and can perform optional video processing. It also correlates sensor feedback with heater, valve, pump and feeder actions so the local dashboard can show whether a commanded operation has produced the expected result.\\
+\cline{3-4}
+ &  & If the fog connects with a user application, what is the purpose of the connection? & The local monitor receives an HDMI display-only connection from the Raspberry Pi 5 and presents a local dashboard. The dashboard shows current water conditions, actuator states, feeder status, camera or event information and gateway health without requiring the cloud connection to be available.\\
+\cline{3-4}
+ &  & If the fog connects with a system, what is the purpose of the connection? & The Raspberry Pi 5 connects through the LAN switch and router to the IoT cloud platform. It uploads selected telemetry, events, alerts and optional processed video over MQTT/HTTPS with TLS. The gateway can store data locally and forward buffered records after the Internet connection returns.\\
+\hline
+Cloud path: Raspberry Pi 5; SONOFF coordinator; router; IoT cloud platform; web dashboard; mobile app; optional analytics. & Determine the connectivity to the cloud & Is a cloud layer required? Why? & The diagram includes a cloud layer for long-term data storage, analytics and visualisation, alerts, remote access, model training and device management. It is valuable for multi-user access and history, but it is not required for the immediate relay, PWM or driver control in the device layer.\\
+\cline{3-4}
+ &  & What data should be transmitted to the cloud, and is it from IoT devices or edge/fog layer devices? & The Raspberry Pi 5 should publish aggregated sensor readings, actuator and feeder states, alarms, gateway health and selected event records. Camera data can be uploaded as selected or processed evidence when the optional analytics function is enabled. Raw local control signals remain at the device and fog layers.\\
+\cline{3-4}
+ &  & What data processing and/or analysis tasks should be performed in the cloud? & The cloud stores long-term records, provides data analytics and visualisation, issues alert and notification workflows, supports remote access through web or mobile applications, enables behaviour or nesting model training when required, and manages authorised device configuration.\\
+\cline{3-4}
+ &  & If the cloud connects with a user application, what is the purpose of the connection? & The web dashboard provides farm operators with remote status, historical trends, event records and authorised monitoring functions. The mobile app delivers alerts and notifications so operators can respond when a condition requires attention.\\
+\cline{3-4}
+ &  & If the cloud connects with a system, what is the purpose of the connection? & The optional data-analytics service receives approved cloud data for longer-term comparison, behaviour or nesting analysis and reporting. Cloud-originated configuration requests must be authenticated and bounded by the local gateway and ESP32-C6 control logic before they can affect an actuator.\\
+\end{longtable}

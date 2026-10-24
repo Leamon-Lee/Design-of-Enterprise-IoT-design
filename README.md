@@ -7,8 +7,8 @@ The current assignment project is the **Smart Turtle Breeding System (STBS)**, a
 ## Repository structure
 
 - `assignments/` — assignment source files and working assets.
-- `assignments/assignment-A1a/` — LaTeX source, figures, and the compiled submission for Assignment 1a.
-- `assignments/assignment-A1b/` — LaTeX source, APA references, Excel-exported tables, figures, and the compiled submission for Assignment 1b.
+- `assignments/assignment-A1a/` — LaTeX source, long-table source, figures, and the compiled submission for Assignment 1a.
+- `assignments/assignment-A1b/` — LaTeX source, APA references, long-table sources, connectivity figures, and the compiled submission for Assignment 1b.
 - `JIT G24 Design of Enterprise IoT/` — course slides, tutorial handouts, assessment briefs, templates, and personal assessment files.
 
 ## Build Assignment 1a
@@ -23,7 +23,7 @@ The compiled report is written to `main.pdf`. Temporary LaTeX build files are ex
 
 ## Build Assignment 1b
 
-The Assignment 1b report is in `assignments/assignment-A1b`. Its device, network, and edge/cloud tables are exported from `assignments/assA1.xlsx` and embedded as PDFs rather than recreated in LaTeX. From that directory, run:
+The Assignment 1b report is in `assignments/assignment-A1b`. Its device, network, and edge/cloud tables are maintained as separate LaTeX `longtable` files and populated from the workbook-backed assignment data. From that directory, run:
 
 ```powershell
 latexmk -xelatex main.tex

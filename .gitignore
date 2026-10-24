@@ -13,6 +13,16 @@
 *.toc
 build/
 
+# Local review and generated artifacts
+tmp/
+.codex-finalizer/
+*.inspect.ndjson
+.~lock.*
+assignments/assignment-A1a/main-before*.pdf
+assignments/assignment-A1b/main-before*.pdf
+assignments/assignment-A1b/main-previous.pdf
+assignments/assignment-A1b/main-updated.pdf
+
 # Editor and operating-system files
 .DS_Store
 Thumbs.db
